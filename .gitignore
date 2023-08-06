@@ -3,3 +3,4 @@
 /build
 /venv
 postit.spec
+postit.db
