@@ -19,7 +19,7 @@ def get_all():
     print(Colortext('*** Post-it ***').bold().light_yellow().run())
     postit_normal = []
     postit_medium = []
-    postit_hight = []
+    postit_high = []
     for post in postits:
         id = Colortext(post.id).bold().run()
         if post.priority == 'normal' or post.priority == None:
@@ -32,13 +32,13 @@ def get_all():
             txt = Colortext('[ ').bold().light_yellow().run()+post.text+Colortext(' ]').bold().light_yellow().run()
             post_it = f'\n{prt} {id} {prt} {txt}\n'
             postit_medium.append(post_it)
-        if post.priority == 'hight':
+        if post.priority == 'high':
             prt = Colortext('*').bold().light_red().run()
             txt = Colortext('[ ').bold().light_red().run()+post.text+Colortext(' ]').bold().light_red().run()
             post_it = f'\n{prt} {id} {prt} {txt}\n'
-            postit_hight.append(post_it)
+            postit_high.append(post_it)
 
-    for postit in postit_hight+postit_medium+postit_normal:
+    for postit in postit_high+postit_medium+postit_normal:
         print(postit)
 
 def e_priority(id, priority):
@@ -56,7 +56,7 @@ def main():
     parser.add_argument('-i', '--insert', help='Insert a new Post-it note', action='store_true')
     parser.add_argument('-d', '--delete', help='Delete a Post-it note by its ID', action='store')
     parser.add_argument('-e', '--edit', help='Select a Post-it note ID to edit', action='store')
-    parser.add_argument('-p', '--priority', choices=['normal', 'medium', 'hight'], help='Assign priority to the Post-it note (choose from: normal, medium, hight) (use with -e)', action='store')
+    parser.add_argument('-p', '--priority', choices=['normal', 'medium', 'high'], help='Assign priority to the Post-it note (choose from: normal, medium, high) (use with -e)', action='store')
     parser.add_argument('-t', '--text', help='Edit the text of a Post-it note by its ID (use with -e)', action='store_true')
 
     args = parser.parse_args()
