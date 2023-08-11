@@ -5,8 +5,16 @@ import argparse
 import os
 
 def insert():
-    text = input('Insert new Post-It: ')
-    insert_postit(Postit(text=text))
+    print('Enter/Paste new Post.it.\nCtrl-D to save it: ')
+    content = []
+    while True:
+        try:
+            line = input()
+            content.append(line)
+        except EOFError:
+            break
+
+    insert_postit(Postit(text=('\n'.join(content))))
     get_all()
 
 def delete(id):
@@ -17,26 +25,41 @@ def get_all():
     postits = get_all_postits()
     os.system('clear')
     print(Colortext('*** Post-it ***').bold().light_yellow().run())
+    print()
     postit_normal = []
     postit_medium = []
     postit_high = []
     for post in postits:
-        id = Colortext(post.id).bold().run()
+        line_txt = [line for line in post.text.split('\n')]
+        line_txt = remove_empty_lines(line_txt)
+
+        lenght = [len(spl) for spl in post.text.split('\n')]
+        lenght.sort(reverse=True)
+        lenght = lenght[0]
+
+        prt_string = f' {post.id} '
         if post.priority == 'normal' or post.priority == None:
-            prt = Colortext('*').bold().light_green().run()
-            txt = Colortext('[ ').bold().light_green().run()+post.text+Colortext(' ]').bold().light_green().run()
-            post_it = f'\n{prt} {id} {prt} {txt}\n'
-            postit_normal.append(post_it)
+            func = normal_priority 
+            priority_list = postit_normal
+
         if post.priority == 'medium':
-            prt = Colortext('*').bold().light_yellow().run()
-            txt = Colortext('[ ').bold().light_yellow().run()+post.text+Colortext(' ]').bold().light_yellow().run()
-            post_it = f'\n{prt} {id} {prt} {txt}\n'
-            postit_medium.append(post_it)
+            func = medium_priority
+            priority_list = postit_medium
+
         if post.priority == 'high':
-            prt = Colortext('*').bold().light_red().run()
-            txt = Colortext('[ ').bold().light_red().run()+post.text+Colortext(' ]').bold().light_red().run()
-            post_it = f'\n{prt} {id} {prt} {txt}\n'
-            postit_high.append(post_it)
+            func = high_priority
+            priority_list = postit_high
+
+        upperline = func('┌' + prt_string + '─'*(lenght + 2 - len(prt_string)) + '┐\n')
+        underline = func('└' + '─'*(lenght + 2) + '┘')
+        content = []
+        for l in line_txt:
+            line = func('│ ') + l + ' '*(lenght-len(l))+ func(' │\n')
+            content.append(line)
+
+        post_text = ''.join(content)
+        content_text = f'{upperline}{post_text}{underline}'
+        priority_list.append(content_text)
 
     for postit in postit_high+postit_medium+postit_normal:
         print(postit)
@@ -49,6 +72,23 @@ def e_text(id):
     text = input(f'Post-it {id} - Type new text: ')
     edit_text(id=id, text=text)
     get_all()
+
+def remove_empty_lines(txt):
+    while True:
+        if txt[-1] == '' or txt[-1] == None:
+            txt.pop(-1)
+        else:
+            break
+    return txt
+
+def normal_priority(txt):
+    return Colortext(txt).bold().light_green().run()
+
+def medium_priority(txt):
+    return Colortext(txt).bold().light_yellow().run()
+
+def high_priority(txt):
+    return Colortext(txt).bold().light_red().run()
 
 def main():
     id = None
