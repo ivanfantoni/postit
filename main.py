@@ -24,6 +24,7 @@ def delete(id):
 def get_all():
     postits = get_all_postits()
     os.system('clear')
+    window_size = os.get_terminal_size().columns
     print(Colortext('*** Post-it ***').bold().light_yellow().run())
     print()
     postit_normal = []
@@ -32,12 +33,14 @@ def get_all():
     for post in postits:
         line_txt = [line for line in post.text.split('\n')]
         line_txt = remove_empty_lines(line_txt)
+        while line_txt != size_text(line_txt, window_size):
+            line_txt = size_text(line_txt, window_size)
 
-        lenght = [len(spl) for spl in post.text.split('\n')]
+        lenght = [len(spl) for spl in line_txt]
         lenght.sort(reverse=True)
         lenght = lenght[0]
 
-        prt_string = f' {post.id} '
+        prt_string = f' ID: {post.id} '
         if post.priority == 'normal' or post.priority == None:
             func = normal_priority 
             priority_list = postit_normal
@@ -50,15 +53,21 @@ def get_all():
             func = high_priority
             priority_list = postit_high
 
-        upperline = func('┌' + prt_string + '─'*(lenght + 2 - len(prt_string)) + '┐\n')
+        upperline = func('┌' + prt_string + '─'*(lenght + 2 - len(prt_string)) + '┐')
         underline = func('└' + '─'*(lenght + 2) + '┘')
+
+        if len(underline) < len(upperline):
+            lenght = lenght + (len(upperline) - len(underline))
+            upperline = func('┌' + prt_string + '─'*(lenght + 2 - len(prt_string)) + '┐')
+            underline = func('└' + '─'*(lenght + 2) + '┘')  
+
         content = []
         for l in line_txt:
             line = func('│ ') + l + ' '*(lenght-len(l))+ func(' │\n')
             content.append(line)
 
         post_text = ''.join(content)
-        content_text = f'{upperline}{post_text}{underline}'
+        content_text = f'{upperline}\n{post_text}{underline}'
         priority_list.append(content_text)
 
     for postit in postit_high+postit_medium+postit_normal:
@@ -81,6 +90,19 @@ def remove_empty_lines(txt):
             break
     return txt
 
+def size_text(lines, window_size):
+    for i ,line in enumerate(lines):
+        if len(line) + 4  > window_size - 4:
+            cut_point = window_size - 4
+            while line[cut_point] != ' ':
+                cut_point -=1
+            part1 = line[:cut_point+1]
+            part2 = line[cut_point+1:]
+            lines.pop(i)
+            lines.insert(i, part1)
+            lines.insert(i+1, part2)
+    return lines
+
 def normal_priority(txt):
     return Colortext(txt).bold().light_green().run()
 
@@ -96,7 +118,9 @@ def main():
     parser.add_argument('-i', '--insert', help='Insert a new Post-it note', action='store_true')
     parser.add_argument('-d', '--delete', help='Delete a Post-it note by its ID', action='store')
     parser.add_argument('-e', '--edit', help='Select a Post-it note ID to edit', action='store')
-    parser.add_argument('-p', '--priority', choices=['normal', 'medium', 'high'], help='Assign priority to the Post-it note (choose from: normal, medium, high) (use with -e)', action='store')
+    parser.add_argument('-p', '--priority', choices=['normal', 'medium', 'high'], 
+                        help='Assign priority to the Post-it note by its ID (choose from: normal, medium, high) (use with -e)', 
+                        action='store')
     parser.add_argument('-t', '--text', help='Edit the text of a Post-it note by its ID (use with -e)', action='store_true')
 
     args = parser.parse_args()
