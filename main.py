@@ -5,20 +5,19 @@ import argparse
 import os
 
 def insert():
-    try:
-        print('Enter/Paste new Post-it.\nCtrl-D to save it: ')
-        content = []
-        while True:
-            try:
-                line = input()
-                content.append(line)
-            except EOFError:
-                break
-
-        insert_postit(Postit(text=('\n'.join(content))))
-        get_all()
-    except KeyboardInterrupt:
-        print(medium_priority('\n[ Exit ]\n'))
+    print('Enter/Paste new Post-it.\nCtrl-D to save it: ')
+    content = []
+    while True:
+        try:
+            line = input()
+            content.append(line)
+        except EOFError:
+            insert_postit(Postit(text=('\n'.join(content))))
+            get_all()
+            break
+        except KeyboardInterrupt:
+            print(medium_priority('\n[ Exit ]\n'))
+            break
     
 def delete(id):
     delete_postit(id)
