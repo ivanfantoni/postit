@@ -16,7 +16,6 @@ def insert():
             get_all()
             break
         except KeyboardInterrupt:
-            print(medium_priority('\n[ Exit ]\n'))
             break
     
 def delete(id):
